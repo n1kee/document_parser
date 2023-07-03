@@ -23,13 +23,12 @@ foreach($stmt->fetchAll() as $k => $row) {
     ?>
     <tr>
         <?php
-                $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
-    foreach($row as $cell) {
+            foreach($row as $cell) {
         ?>
             <td><?= $cell ?></td>
         <?php
-    }
-    ?>
+        }
+        ?>
     </tr>
 <?php
 }
