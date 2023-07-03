@@ -6,8 +6,18 @@ require_once './DB.php';
 $stmt = DB::connect()->prepare("SELECT * FROM AHB.goods;");
 $stmt->execute();
 ?>
-<table style='border: solid 1px black;'>
+<style type="text/css">
+    table {
+        border-collapse: collapse;
+    }
+    td, th {
+        border: 1px solid black;
+        padding: 10px;
+    }
+</style>
+<table>
     <tr>
+        <th></th>
         <th></th>
         <th></th>
         <th></th>
@@ -24,20 +34,20 @@ $stmt->execute();
         <th></th>
     </tr>
 </tr>
-<?php 
+<?php
 $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
-    
-    foreach($stmt->fetchAll() as $k => $row) {
-?>
+
+foreach($stmt->fetchAll() as $k => $row) {
+    ?>
     <tr>
-        <?php 
-            $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
-                foreach($row as $cell) {
+        <?php
+                $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    foreach($row as $cell) {
         ?>
             <td><?= $cell ?></td>
         <?php
-        }
-        ?>
+    }
+    ?>
     </tr>
 <?php
 }

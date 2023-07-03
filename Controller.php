@@ -2,9 +2,11 @@
 
 require_once './DB.php';
 
-function uploadFile(string $pathname) {
+function uploadFile(string $pathname)
+{
 
-    enum ColumnTypes {
+    enum ColumnTypes
+    {
         case INTEGER;
         case FLOAT;
         case STRING;
@@ -20,7 +22,7 @@ function uploadFile(string $pathname) {
         "price" => [ ColumnTypes::FLOAT ],
         "price_sp" => [ ColumnTypes::FLOAT ],
         "quantity" => [ ColumnTypes::INTEGER ],
-        "properties" => [ ColumnTypes::STRING ],
+        "properties" => [ ColumnTypes::TEXT ],
         "joint_purchase" => [ ColumnTypes::STRING ],
         "measurement" => [ ColumnTypes::STRING ],
         "picture" => [ ColumnTypes::STRING ],
@@ -79,26 +81,30 @@ function uploadFile(string $pathname) {
         switch ($description[0]) {
             case ColumnTypes::FLOAT:
             case ColumnTypes::INTEGER:
-                $columnRegex = "[^A-Za-zА-Яа-я]*";
+                $columnRegex = "[^A-Za-zА-Яа-я]*?";
                 break;
-            
+
             default:
-                $columnRegex = ".*";
+                $columnRegex = ".*?";
                 break;
         }
         $rowRegex .= "{$delimeter}({$columnRegex})";
         $delimeter = ";";
     }
-    $rowRegex .= ",{20}";
+    $rowRegex .= "(?<=[^,]),+";
 
-    DB::beginTransaction();
+    
 
-    if (($handle = fopen($pathname, "r")) !== FALSE) {
+    if (($handle = fopen($pathname, "r")) !== false) {
         $batchSql = "";
         $rowCount = 0;
-        while (($line = fgets($handle)) !== FALSE) {
+        DB::beginTransaction();
 
-            if (!$rowCount++) continue;
+        while (($line = fgets($handle)) !== false) {
+
+            if (!$rowCount++) {
+                continue;
+            }
 
             preg_match_all("/{$rowRegex}/u", $line, $matches);
 
@@ -106,21 +112,23 @@ function uploadFile(string $pathname) {
 
             $row = call_user_func_array('array_merge', $row);
 
-            if (empty($row)) continue;
+            if (empty($row)) {
+                continue;
+            }
 
-            $good = array_combine( array_keys($goodTypes), $row );
+            $good = array_combine(array_keys($goodTypes), $row);
 
             foreach ($good as $key => $value) {
                 $type = $goodTypes[ $key ][ 0 ];
                 $parsedValue = $value;
-                
+
                 switch ($type) {
                     case ColumnTypes::INTEGER:
                     case ColumnTypes::FLOAT:
                         $value = preg_replace(["/,/", "[^0-9]"], [".", ""], $value);
                         break;
                 }
-                
+
                 switch ($type) {
                     case ColumnTypes::INTEGER:
                         $parsedValue = is_numeric($value) ? (int) $value : null;
@@ -136,16 +144,20 @@ function uploadFile(string $pathname) {
 
             $goodKeysList = implode(", ", array_keys($good));
 
-            $placeholders = implode(", ", array_fill(0, count($good), "?" ));
+            $placeholders = implode(", ", array_fill(0, count($good), "?"));
 
             $batchSql .= "INSERT INTO goods ($goodKeysList) VALUES ($placeholders);";
 
             $query = DB::connect()->prepare($batchSql);
             $query->execute(array_values($good));
             $batchSql = '';
+
+            if (!($rowCount % 1000)) {
+                DB::commit();
+                DB::beginTransaction();
+            }
         }
+        DB::commit();
         fclose($handle);
     }
-
-    DB::commit();
 }

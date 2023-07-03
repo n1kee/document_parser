@@ -1,1 +1,4 @@
 *.tmp.*
+vendor
+config.php
+.php-cs-fixer.cache

@@ -2,25 +2,26 @@
 
 require_once './APP.php';
 
-class DB {
+class DB
+{
+    public static $connection;
 
-    static $connection;
-
-    static function beginTransaction() {
+    public static function beginTransaction()
+    {
         self::$connection->beginTransaction();
     }
 
-    static function commit() {
+    public static function commit()
+    {
         self::$connection->commit();
     }
 
-    static function fetchAll() {
-        self::$connection->fetchAll();
-    }
+    public static function connect()
+    {
 
-    static function connect() {
-
-        if (self::$connection) return self::$connection;
+        if (self::$connection) {
+            return self::$connection;
+        }
 
         $config = APP::getConfig();
 

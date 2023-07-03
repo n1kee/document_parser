@@ -1,8 +1,9 @@
 <?php
 
-class APP {
-
-    static function getConfig() {
+class APP
+{
+    public static function getConfig()
+    {
         return require_once 'config.php';
     }
 }
