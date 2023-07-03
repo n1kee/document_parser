@@ -16,24 +16,6 @@ $stmt->execute();
     }
 </style>
 <table>
-    <tr>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
-    </tr>
-</tr>
 <?php
 $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
 
